@@ -37,12 +37,7 @@ class MainTabController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        UserService.shared.fetchUser { user in
-            self.user = user
-        }
-        
-        
-        
+        fetchUser()
         confugureViewControllers()
         configureUI()
         
@@ -56,7 +51,10 @@ class MainTabController: UITabBarController {
     }
     
     @objc fileprivate func handleActionButtonTapped() {
-        print("123")
+        guard let user = user else { return }
+        let navigationController = UINavigationController(rootViewController: UploadTweetController(user: user))
+        navigationController.modalPresentationStyle = .fullScreen
+        present(navigationController, animated: true, completion: nil)
     }
     
     // MARK: - Private properties
@@ -90,6 +88,12 @@ class MainTabController: UITabBarController {
         actionButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
         actionButton.widthAnchor.constraint(equalToConstant: 56).isActive = true
         actionButton.heightAnchor.constraint(equalToConstant: 56).isActive = true
+    }
+    
+    private func fetchUser() {
+        UserService.shared.fetchUser { user in
+            self.user = user
+        }
     }
     
 }

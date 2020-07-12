@@ -36,6 +36,9 @@ class FeedViewController: UIViewController {
         view.backgroundColor = .white
         
         let imageView = UIImageView(image: UIImage(named: "twitter_logo_blue"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        imageView.widthAnchor.constraint(equalToConstant: 44).isActive = true
         imageView.contentMode = .scaleAspectFit
         navigationItem.titleView = imageView
     }

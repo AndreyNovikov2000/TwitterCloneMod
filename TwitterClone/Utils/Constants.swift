@@ -13,6 +13,7 @@ struct K {
     struct Firebase {
         static let reference = Database.database().reference()
         static let userRefernce = Database.database().reference().child("users")
+        static let tweetsRefence = Database.database().reference().child("tweets")
         
         static let storage = Storage.storage().reference()
         static let storageProfileImage = Storage.storage().reference().child("profile_image")
@@ -25,7 +26,13 @@ struct K {
         static let profileImageUrl = "profileImageUrl"
     }
     
-    
+    struct TweetRefence {
+        static let uid = "uid"
+        static let timetamp = "timetamp"
+        static let likes = "likes"
+        static let retweets = "retweet"
+        static let caption = "caption"
+    }    
 }
 
 
