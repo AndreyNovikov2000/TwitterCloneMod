@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class LoginViewController: UIViewController {
     
@@ -76,8 +77,22 @@ class LoginViewController: UIViewController {
     // MARK: - Selector methods
     
     @objc private func handleLoginButtonPressed() {
-        print("log in")
+        guard let email = emailTextField.text, !email.isEmpty else { return }
+        guard let password = passwordTextField.text, !password.isEmpty else { return }
+        
+        AuthService.shared.signIn(withEmail: email, password: password) { (authresult, error) in
+            if let error = error {
+                print("Error - \(error.localizedDescription)")
+                return
+            }
+            
+            guard let _ = authresult else { return }
+            let tabViewController = MainTabController()
+            tabViewController.modalPresentationStyle = .fullScreen
+            self.present(tabViewController, animated: true, completion: nil)
+        }
     }
+    
     
     @objc private func handleDontHaveAccountButtonPressed() {
         navigationController?.pushViewController(RegistrationViewController(), animated: true)

@@ -13,6 +13,7 @@ class RegistrationViewController: UIViewController {
     // MARK: - Private properties
     
     private let imagePickerController = UIImagePickerController()
+    private var profileImage: UIImage?
     
     private let addPhotoButton: UIButton = {
         let button = UIButton(type: .system)
@@ -119,12 +120,21 @@ class RegistrationViewController: UIViewController {
     }
     
     @objc private func handleRegistrationPressed() {
+        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+        guard let fullName = fullnameTextField.text, let userName = usernameTextField.text else { return }
+        guard let profileImage = profileImage else { return }
         
+        let credentials = AuthCredentials(emal: email, password: password, fullName: fullName, userName: userName, profileImage: profileImage)
+        AuthService.shared.registerUser(credentionals: credentials) { error, reference in
+         
+            
+        }
     }
+
     
     @objc private func handleKkeyboardNotification(notification: Notification) {
         guard let _ = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
-    
+        
     }
     
     // MARK: - Private properties
@@ -171,6 +181,7 @@ class RegistrationViewController: UIViewController {
 extension RegistrationViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let image = info[.editedImage] as? UIImage else { return }
+        self.profileImage = image
         
         addPhotoButton.layer.cornerRadius = addPhotoButton.frame.height / 2
         addPhotoButton.layer.borderWidth = 3
