@@ -16,10 +16,7 @@ final class UserService {
         
     }
     
-    func fetchUser(response:@escaping (User) -> Void) {
-        guard let uid = Auth.auth().currentUser?.uid else { return }
-        
-        
+    func fetchUser(uid: String, response:@escaping (User) -> Void) {
         K.Firebase.userRefernce.child(uid).observeSingleEvent(of: .value) { snapshot in
             let user = User(snapshoot: snapshot, uid: uid)
             response(user)

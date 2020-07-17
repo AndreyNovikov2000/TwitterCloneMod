@@ -59,26 +59,22 @@ class RegistrationViewController: UIViewController {
     
     private lazy var emailTextField: UITextField = {
         let textField: UITextField = .textField(with: "Email")
-        //        textField.delegate = self
         return textField
     }()
     
     private lazy var passwordTextField: UITextField = {
         let textField: UITextField = .textField(with: "Password")
-        //        textField.delegate = self
         textField.isSecureTextEntry = true
         return textField
     }()
     
     private lazy var fullnameTextField: UITextField = {
         let textField: UITextField = .textField(with: "Full name")
-        //        textField.delegate = self
         return textField
     }()
     
     private lazy var usernameTextField: UITextField = {
         let textField: UITextField = .textField(with: "Username")
-        //        textField.delegate = self
         return textField
     }()
     
@@ -120,9 +116,11 @@ class RegistrationViewController: UIViewController {
     }
     
     @objc private func handleRegistrationPressed() {
-        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
-        guard let fullName = fullnameTextField.text, let userName = usernameTextField.text else { return }
+        guard let email = emailTextField.text?.lowercased(), let password = passwordTextField.text?.lowercased() else { return }
+        guard let fullName = fullnameTextField.text?.lowercased(), let userName = usernameTextField.text?.lowercased() else { return }
         guard let profileImage = profileImage else { return }
+        
+       
         
         let credentials = AuthCredentials(emal: email, password: password, fullName: fullName, userName: userName, profileImage: profileImage)
         AuthService.shared.registerUser(credentionals: credentials) { error, reference in

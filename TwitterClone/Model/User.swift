@@ -16,6 +16,10 @@ struct User {
     let profileImageUrl: String
     let uid: String
     
+    var isCurrentUser: Bool {
+        return Auth.auth().currentUser?.uid == uid
+    }
+    
     var url: URL? {
         return URL(string: profileImageUrl)
     }

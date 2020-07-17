@@ -54,3 +54,12 @@ extension UIView {
         return view
     }
 }
+
+
+extension UIView {
+    func setDomention(width: CGFloat, height: CGFloat) {
+        translatesAutoresizingMaskIntoConstraints = false
+        widthAnchor.constraint(equalToConstant: width).isActive = true
+        heightAnchor.constraint(equalToConstant: height).isActive = true
+    }
+}

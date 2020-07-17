@@ -24,4 +24,21 @@ final class TweetService {
         
         K.Firebase.tweetsRefence.childByAutoId().updateChildValues(values, withCompletionBlock: complition)
     }
+    
+    func fetchTweets(response:@escaping ([Tweet]) -> Void) {
+        var tweets = [Tweet]()
+        
+        K.Firebase.tweetsRefence.observe(.childAdded) { snapshot in
+            guard let dictionary = snapshot.value as? [String: Any] else { return }
+            guard let uid = dictionary[K.TweetRefence.uid] as? String else { return }
+            let tweetId = snapshot.key
+            
+            
+            UserService.shared.fetchUser(uid: uid) { user in
+                let tweet = Tweet(dictionary: dictionary, user: user, tweetId: tweetId)
+                tweets.append(tweet)
+                response(tweets)
+            }
+        }
+    }
 }

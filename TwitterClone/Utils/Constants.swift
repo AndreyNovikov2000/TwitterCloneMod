@@ -17,6 +17,8 @@ struct K {
         
         static let storage = Storage.storage().reference()
         static let storageProfileImage = Storage.storage().reference().child("profile_image")
+        
+        static let userTweets = Database.database().reference().child("user-tweets")
     }
     
     struct UserRefence {
@@ -32,7 +34,11 @@ struct K {
         static let likes = "likes"
         static let retweets = "retweet"
         static let caption = "caption"
-    }    
+    }
+    
+    struct Size {
+        static let tweetCellSize = CGSize(width: UIScreen.main.bounds.width, height: 110)
+    }
 }
 
 

@@ -57,6 +57,4 @@ class CaptionTextView: UITextView {
         placeholderLabel.topAnchor.constraint(equalTo: topAnchor, constant: 8).isActive = true
         placeholderLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4).isActive = true
     }
-    
-    
 }

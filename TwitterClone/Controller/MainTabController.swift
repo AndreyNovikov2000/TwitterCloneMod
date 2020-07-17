@@ -36,7 +36,6 @@ class MainTabController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         fetchUser()
         confugureViewControllers()
         configureUI()
@@ -60,7 +59,9 @@ class MainTabController: UITabBarController {
     // MARK: - Private properties
     
     private func confugureViewControllers() {
-        let feed = FeedViewController()
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        let feed = FeedViewController(collectionViewLayout: layout)
         feed.tabBarItem.image = UIImage(named: "home_unselected")
         
         let explore = ExploreViewController()
@@ -91,7 +92,8 @@ class MainTabController: UITabBarController {
     }
     
     private func fetchUser() {
-        UserService.shared.fetchUser { user in
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        UserService.shared.fetchUser(uid: uid) { user in
             self.user = user
         }
     }

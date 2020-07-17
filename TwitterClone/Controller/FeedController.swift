@@ -8,7 +8,7 @@
 
 import UIKit
 
-class FeedViewController: UIViewController {
+class FeedViewController: UICollectionViewController {
     
     // MARK: - Public propertis
     
@@ -18,16 +18,34 @@ class FeedViewController: UIViewController {
         }
     }
     
-    // MARK: - Properties
+    // MARK: - Private properties
     
+    private var tweets = [Tweet]()
     
     // MARK: - Live cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        fetchTweets()
         configureUI()
         configureProfileImage()
-        
+        collectionView.backgroundColor = .white
+        collectionView.register(TweetCell.self, forCellWithReuseIdentifier: TweetCell.reuseId)
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.barStyle = .default
+    }
+    
+    // MARK: - API
+    func fetchTweets() {
+        TweetService.shared.fetchTweets { tweets in
+            self.tweets = tweets
+            self.collectionView.reloadData()
+        }
     }
     
     // MARK: - Private methods
@@ -52,10 +70,50 @@ class FeedViewController: UIViewController {
         
         profileImageView.set(imageUrl: user?.url)
         profileImageView.layer.masksToBounds = true
-        profileImageView.backgroundColor = .red
         profileImageView.layer.cornerRadius = 36 / 2
         profileImageView.backgroundColor = .mainBlue
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: profileImageView)
+    }
+}
+
+
+// MARK: - UICollectionViewDataSource
+extension FeedViewController {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return tweets.count
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TweetCell.reuseId, for: indexPath) as! TweetCell
+        
+        let tweet = tweets[indexPath.row]
+        cell.tweet = tweet
+        cell.myDelegate = self
+    
+        return cell
+    }
+}
+
+
+// MARK: - UICollectionViewDelegate
+extension FeedViewController {
+    
+    
+}
+
+
+// MARK: - TweetCellDelegate
+extension FeedViewController: TweetCellDelegate {
+    func tweetCell(_ tweetCell: TweetCell, handleProfileImageTapped: WebImageView) {
+        guard let user = tweetCell.tweet?.user else { return }
+        navigationController?.pushViewController(ProfileController(user: user), animated: true)
+    }
+}
+
+// MARK: - UICollectionViewDelegateFlowLayout
+extension FeedViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return K.Size.tweetCellSize
     }
 }
