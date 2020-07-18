@@ -14,7 +14,7 @@ class FeedViewController: UICollectionViewController {
     
     var user: User? {
         didSet {
-           configureProfileImage()
+            configureProfileImage()
         }
     }
     
@@ -34,11 +34,7 @@ class FeedViewController: UICollectionViewController {
     }
     
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        navigationController?.navigationBar.isHidden = false
-        navigationController?.navigationBar.barStyle = .default
-    }
+    
     
     // MARK: - API
     func fetchTweets() {
@@ -73,7 +69,7 @@ class FeedViewController: UICollectionViewController {
         profileImageView.layer.cornerRadius = 36 / 2
         profileImageView.backgroundColor = .mainBlue
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: profileImageView)
+        navigationItem.leftBarButtonItem = UIBarButtonItem()
     }
 }
 
@@ -90,7 +86,7 @@ extension FeedViewController {
         let tweet = tweets[indexPath.row]
         cell.tweet = tweet
         cell.myDelegate = self
-    
+        
         return cell
     }
 }

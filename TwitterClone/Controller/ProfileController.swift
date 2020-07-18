@@ -13,8 +13,13 @@ class ProfileController: UICollectionViewController {
     // MARK: - Public properties
     
     // MARK: - Private properties
+    private var user: User?
     
-    private let user: User?
+    private var tweets = [Tweet]() {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     
     // MARK: - Live cycle
     
@@ -30,15 +35,49 @@ class ProfileController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-       configureCollectionView()
-        
+        configureCollectionView()
+        fetchUser()
+        checkUserIsFollowed()
+        fetchStats()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.navigationBar.isHidden = true
         navigationController?.navigationBar.barStyle = .black
-
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.isHidden = false
+        navigationController?.navigationBar.barStyle = .default
+        navigationItem.hidesBackButton = true
+        
+    }
+    
+    // MARK: - API
+    
+    func fetchUser() {
+        guard let user = user else { return }
+        TweetService.shared.fetchTweets(forUser: user) { tweets in
+            self.tweets = tweets
+        }
+    }
+    
+    func checkUserIsFollowed() {
+        guard let user = user else { return }
+        UserService.shared.checkUserIsFollowed(uid: user.uid) { isFollowed in
+            self.user?.isFollowed = isFollowed
+            self.collectionView.reloadData()
+        }
+    }
+    
+    func fetchStats() {
+        guard let user = user else { return }
+        UserService.shared.fetchUserStats(uid: user.uid) { stats in
+            self.user?.stats = stats
+            self.collectionView.reloadData()
+        }
     }
     
     // MARK: - Public methods
@@ -62,14 +101,14 @@ class ProfileController: UICollectionViewController {
 // MARK: - UICollectionViewDataSource
 extension ProfileController {
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 40
+        return tweets.count
     }
     
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TweetCell.reuseId, for: indexPath) as? TweetCell else { return UICollectionViewCell() }
         
-        
+        cell.tweet = tweets[indexPath.row]
         return cell
     }
 }
@@ -100,7 +139,35 @@ extension ProfileController: UICollectionViewDelegateFlowLayout {
 
 
 extension ProfileController: HeaderProfileViewDelegate {
-    func profileHeader(_ profileHeader: ProfileHeader, didTappedBackButton backButton: UIButton) {
+    func profileHeader(_ profileHeader: ProfileHeader, backButtonTapped backButton: UIButton) {
         navigationController?.popViewController(animated: true)
+    }
+    
+    func profileHeader(_ profileHeader: ProfileHeader, editButtonTapped backButton: UIButton) {
+        guard let user = user else { return }
+        
+        if user.isCurrentUser {
+            print("Show editing controller")
+            return
+        }
+        
+        
+        if user.isFollowed {
+         
+            UserService.shared.unfollowUser(uid: user.uid) { (_, _) in
+                self.user?.isFollowed = false
+                self.fetchStats()
+                self.collectionView.reloadData()
+            }
+            
+        } else {
+            UserService.shared.followUser(uid: user.uid) { (_, _) in
+                self.user?.isFollowed = true
+                self.fetchStats()
+                self.collectionView.reloadData()
+            }
+        }
+        
+       
     }
 }

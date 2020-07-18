@@ -15,6 +15,7 @@ struct User {
     let userName: String
     let profileImageUrl: String
     let uid: String
+    var stats: UserRelationStats?
     
     var isCurrentUser: Bool {
         return Auth.auth().currentUser?.uid == uid
@@ -23,6 +24,8 @@ struct User {
     var url: URL? {
         return URL(string: profileImageUrl)
     }
+    
+    var isFollowed = false
     
     init(fullName: String, email: String, userName: String, profileImageUrl: String, uid: String) {
         self.fullName = fullName

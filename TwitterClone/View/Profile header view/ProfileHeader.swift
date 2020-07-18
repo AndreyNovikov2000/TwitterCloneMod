@@ -9,7 +9,8 @@
 import UIKit
 
 protocol HeaderProfileViewDelegate: class {
-    func profileHeader(_ profileHeader: ProfileHeader, didTappedBackButton backButton: UIButton)
+    func profileHeader(_ profileHeader: ProfileHeader, backButtonTapped backButton: UIButton)
+    func profileHeader(_ profileHeader: ProfileHeader, editButtonTapped backButton: UIButton)
 }
 
 class ProfileHeader: UICollectionReusableView {
@@ -68,7 +69,7 @@ class ProfileHeader: UICollectionReusableView {
     }()
     
     private lazy var profileButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Follow", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14)
@@ -82,7 +83,6 @@ class ProfileHeader: UICollectionReusableView {
     // labels layer
     private let fullNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "Nifoni Andrew"
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .black
         label.font = .boldSystemFont(ofSize: 20)
@@ -91,7 +91,6 @@ class ProfileHeader: UICollectionReusableView {
     
     private let userNameLabel: UILabel = {
         let label = UILabel()
-        label.text = "@Nifon555"
         label.translatesAutoresizingMaskIntoConstraints = false
         label.textColor = .lightGray
         label.font = .systemFont(ofSize: 14)
@@ -169,11 +168,11 @@ class ProfileHeader: UICollectionReusableView {
     // MARK: - Seelectors
     
     @objc private func handleBackButtonTappede(sender: UIButton) {
-        myDelegate?.profileHeader(self, didTappedBackButton: sender)
+        myDelegate?.profileHeader(self, backButtonTapped: sender)
     }
     
-    @objc private func handleProfileButtonTapped() {
-        print(#function)
+    @objc private func handleProfileButtonTapped(sender: UIButton) {
+        myDelegate?.profileHeader(self, editButtonTapped: sender)
     }
     
     @objc private func handleFolowingLabeltapped() {
@@ -191,6 +190,8 @@ class ProfileHeader: UICollectionReusableView {
         let viewModel = ProfileHeaderViewModel(user: user)
         profileButton.setTitle(viewModel.actionButtontitle, for: .normal)
         profileImageView.set(imageUrl: user.url)
+        fullNameLabel.text = viewModel.fullName
+        userNameLabel.text = viewModel.userName
         followersLabel.attributedText = viewModel.followsString
         followingLabel.attributedText = viewModel.followingString
     }

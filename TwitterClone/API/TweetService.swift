@@ -22,8 +22,18 @@ final class TweetService {
                                      K.TweetRefence.retweets: 0,
                                      K.TweetRefence.caption: caption]
         
-        K.Firebase.tweetsRefence.childByAutoId().updateChildValues(values, withCompletionBlock: complition)
+        let ref = K.Firebase.tweetsRefence.childByAutoId()
+        
+        ref.updateChildValues(values) { (error, refence) in
+            guard let tweetId = ref.key else { return }
+            
+            // update user-tweet structer after uplode
+            let value = [tweetId: 1]
+            K.Firebase.userTweets.child(uid).updateChildValues(value)
+            complition(error, refence)
+        }
     }
+    
     
     func fetchTweets(response:@escaping ([Tweet]) -> Void) {
         var tweets = [Tweet]()
@@ -41,4 +51,26 @@ final class TweetService {
             }
         }
     }
+    
+    func fetchTweets(forUser user: User,  complition: @escaping ([Tweet]) -> Void) {
+        var tweets = [Tweet]()
+        
+        K.Firebase.userTweets.child(user.uid).observe(.childAdded) { snapshot in
+            let tweetId = snapshot.key
+            
+            K.Firebase.tweetsRefence.child(tweetId).observeSingleEvent(of: .value) { tweetSnapshot in
+                guard let tweetDictionary = tweetSnapshot.value as? [String: Any] else { return }
+                guard let uid = tweetDictionary[K.TweetRefence.uid] as? String else { return }
+                
+                
+                UserService.shared.fetchUser(uid: uid) { user in
+                    let tweet = Tweet(dictionary: tweetDictionary, user: user, tweetId: tweetId)
+                    tweets.append(tweet)
+                    complition(tweets)
+                    
+                }
+            }
+        }
+    }
 }
+

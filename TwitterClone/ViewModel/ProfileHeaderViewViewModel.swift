@@ -31,15 +31,35 @@ struct ProfileHeaderViewModel {
     private let user: User
     
     var followsString: NSAttributedString? {
-        return getAttributedText(withValue: 123, text: "follows")
+        return getAttributedText(withValue: user.stats?.followers ?? 0, text: "followers")
     }
     
     var followingString: NSAttributedString? {
-        return getAttributedText(withValue: 12, text: "Following")
+        return getAttributedText(withValue: user.stats?.following ?? 0, text: "Following")
     }
     
     var actionButtontitle: String {
-        return user.isCurrentUser ?  "Edit profile" : "Follow"
+        if user.isCurrentUser {
+            return "Edit profile"
+        }
+        
+        if !user.isCurrentUser && user.isFollowed {
+            return "Following"
+        }
+        
+        if !user.isCurrentUser && !user.isFollowed {
+            return "Follow"
+        }
+        
+        return ""
+    }
+    
+    var fullName: String {
+        return user.fullName
+    }
+    
+    var userName: String {
+        return "@\(user.userName)"
     }
     
     init(user: User) {

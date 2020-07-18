@@ -21,7 +21,8 @@ class MainTabController: UITabBarController {
     }
     
     
-    // MARK: - Properties
+    // MARK: - Private properties
+    
     private let actionButton: UIButton = {
         let button = UIButton(type: .system)
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -36,11 +37,14 @@ class MainTabController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
         fetchUser()
         confugureViewControllers()
         configureUI()
         
-         delegate = self
+        delegate = self
     }
     
     override func viewDidLayoutSubviews() {
@@ -97,7 +101,6 @@ class MainTabController: UITabBarController {
             self.user = user
         }
     }
-    
 }
 
 
