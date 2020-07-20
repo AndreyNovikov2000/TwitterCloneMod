@@ -18,3 +18,15 @@ extension UIButton {
         layer.cornerRadius = 5
     }
 }
+
+extension UIButton {
+    static func createButton(withImageName imageName: String) -> UIButton {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: imageName), for: .normal)
+        button.tintColor = .darkGray
+        button.widthAnchor.constraint(equalToConstant: 20).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        return button
+    }
+}

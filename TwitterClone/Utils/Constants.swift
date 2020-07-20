@@ -33,6 +33,9 @@ struct K {
         
         // user following
         static let userFollowing = Database.database().reference().child("user-following")
+        
+        // tweet-replies
+        static let tweetReplies = Database.database().reference().child("tweet-replies")
     }
     
     struct UserRefence {

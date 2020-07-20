@@ -13,7 +13,7 @@ import Firebase
 final class TweetService {
     static let shared = TweetService()
     
-    func uploadTweet(caption: String,  complition: @escaping (Error?, DatabaseReference) -> Void) {
+    func uploadTweet(caption: String, type: UploadTweetConfiguration, complition: @escaping (Error?, DatabaseReference) -> Void) {
         guard let uid = Auth.auth().currentUser?.uid else { return }
         
         let values: [String: Any] = [K.TweetRefence.uid: uid,
@@ -22,15 +22,20 @@ final class TweetService {
                                      K.TweetRefence.retweets: 0,
                                      K.TweetRefence.caption: caption]
         
-        let ref = K.Firebase.tweetsRefence.childByAutoId()
-        
-        ref.updateChildValues(values) { (error, refence) in
-            guard let tweetId = ref.key else { return }
+        switch type {
+        case .upload:
+            let ref = K.Firebase.tweetsRefence.childByAutoId()
+            ref.updateChildValues(values) { (error, refence) in
+                guard let tweetId = ref.key else { return }
+                
+                // update user-tweet structer after uplode
+                let value = [tweetId: 1]
+                K.Firebase.userTweets.child(uid).updateChildValues(value)
+                complition(error, refence)
+            }
             
-            // update user-tweet structer after uplode
-            let value = [tweetId: 1]
-            K.Firebase.userTweets.child(uid).updateChildValues(value)
-            complition(error, refence)
+        case .replace(let tweet):
+            K.Firebase.tweetReplies.child(tweet.tweetId).childByAutoId().updateChildValues(values, withCompletionBlock: complition)
         }
     }
     
@@ -72,5 +77,33 @@ final class TweetService {
             }
         }
     }
+    
+    
+    
+    func fetchUser(fromTweet tweet: Tweet, response:@escaping (User) -> Void) {
+        let ref = K.Firebase.tweetsRefence
+        
+        ref.child(tweet.tweetId).observeSingleEvent(of: .value) { snapshoot in
+            let uid = snapshoot.key
+            UserService.shared.fetchUser(uid: uid, response: response)
+        }
+    }
+    
+    func fetchReplies(forTweet tweet: Tweet, response:@escaping ([Tweet]) -> Void) {
+        var tweets = [Tweet]()
+        let tweetId = tweet.tweetId
+        K.Firebase.tweetReplies.child(tweetId).observe(.childAdded) { snapshot in
+            guard let dict = snapshot.value as? [String: Any] else { return }
+            guard let uid = dict[K.TweetRefence.uid] as? String else { return }
+
+            UserService.shared.fetchUser(uid: uid) { user in
+                let tweet = Tweet(dictionary: dict, user: user, tweetId: tweet.tweetId)
+                tweets.append(tweet)
+                response(tweets)
+            }
+        }
+    }
+    
+    
 }
 

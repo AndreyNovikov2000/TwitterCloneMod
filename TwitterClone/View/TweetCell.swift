@@ -10,6 +10,7 @@ import UIKit
 
 protocol TweetCellDelegate: class {
     func tweetCell(_ tweetCell: TweetCell, handleProfileImageTapped: WebImageView)
+    func tweetCell(_ tweetCell: TweetCell, handlereplyButtonTapped replyButton: UIButton)
 }
 
 class TweetCell: UICollectionViewCell {
@@ -124,8 +125,8 @@ class TweetCell: UICollectionViewCell {
     
     // MARK: - Selectors
     
-    @objc private func handleCommentTapped() {
-        print("DEBUG: \(#function)")
+    @objc private func handleCommentTapped(sender: UIButton) {
+        myDelegate?.tweetCell(self, handlereplyButtonTapped: sender)
     }
     
     @objc private func handleRetweetTapped() {

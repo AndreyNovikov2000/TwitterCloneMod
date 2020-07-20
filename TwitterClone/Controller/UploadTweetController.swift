@@ -14,6 +14,8 @@ class UploadTweetController: UIViewController {
     // MARK: - Private properties
     
     private let user: User
+    private let config: UploadTweetConfiguration
+    private lazy var uploadViewModel = UploadTweetViewModel(configuration: config)
     
     private lazy var actionButton: UIButton = {
         let button = UIButton(type: .system)
@@ -45,11 +47,21 @@ class UploadTweetController: UIViewController {
     
     private let captionTextView = CaptionTextView()
     
+    private lazy var replyLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = .lightGray
+        label.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
+        return label
+    }()
+    
     
     // MARK: - Live cycle
     
-    init(user: User) {
+    init(user: User, config: UploadTweetConfiguration) {
         self.user = user
+        self.config = config
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -60,7 +72,6 @@ class UploadTweetController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         configureUI()
     }
     
@@ -72,7 +83,7 @@ class UploadTweetController: UIViewController {
     }
     
     @objc private func handleUploadTweetButtonPressed() {
-        TweetService.shared.uploadTweet(caption: captionTextView.text) { (error, reference) in
+        TweetService.shared.uploadTweet(caption: captionTextView.text, type: config) { (error, reference) in
             if let error = error {
                 print("DEBUG: Error - \(error.localizedDescription)")
                 return
@@ -85,20 +96,31 @@ class UploadTweetController: UIViewController {
     // MARK: - Private methods
     
     private func configureUI() {
-        let stackView = UIStackView(arrangedSubviews: [profileImageView, captionTextView])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.spacing = 12
+        let imageCaptionStack = UIStackView(arrangedSubviews: [profileImageView, captionTextView])
+        imageCaptionStack.axis = .horizontal
+        imageCaptionStack.spacing = 12
+        imageCaptionStack.alignment = .leading
+        
+        let stack = UIStackView(arrangedSubviews: [replyLabel, imageCaptionStack])
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        stack.axis = .vertical
+        stack.spacing = 12
         
         view.backgroundColor = .white
-        view.addSubview(stackView)
+        view.addSubview(stack)
         
-        stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
-        stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16).isActive = true
-        stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+        stack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16).isActive = true
+        stack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16).isActive = true
+        stack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16).isActive = true
+        
+        actionButton.setTitle(uploadViewModel.actionButtonTitle, for: .normal)
+        captionTextView.placeholderLabel.text = uploadViewModel.placeholderText
+        replyLabel.text = uploadViewModel.userNameLabel
+        replyLabel.isHidden = !uploadViewModel.shouldShowReplyLabel
         
         configureNavigationBar()
     }
+    
     
     private func configureNavigationBar() {
         navigationController?.navigationBar.tintColor = .white
