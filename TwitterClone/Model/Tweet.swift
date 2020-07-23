@@ -16,7 +16,7 @@ struct Tweet {
     let retweetCount: Int
     let timetamp: Int
     let tweetId: String
-    let user: User
+    var user: User
     
     var date: Date {
         return Date(timeIntervalSince1970: TimeInterval(timetamp))
