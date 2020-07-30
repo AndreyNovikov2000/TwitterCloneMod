@@ -7,6 +7,7 @@
 //
 
 import Firebase
+import FirebaseDatabase
 
 
 struct K {
@@ -36,6 +37,12 @@ struct K {
         
         // tweet-replies
         static let tweetReplies = Database.database().reference().child("tweet-replies")
+        
+        // tweet likes
+        static let tweetLikes = Database.database().reference().child("tweet-likes")
+        
+        // user likes
+        static let userLikes = Database.database().reference().child("user-likes")
     }
     
     struct UserRefence {

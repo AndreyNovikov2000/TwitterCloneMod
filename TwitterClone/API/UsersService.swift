@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 typealias ResponseComplition = (Error?, DatabaseReference) -> Void
 
@@ -41,9 +42,9 @@ final class UserService {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
         // update currentUser following 
-        K.Firebase.userFollowers.child(currentUid).updateChildValues([uid: 1]) { (_, _) in
+        K.Firebase.userFollowers.child(uid).updateChildValues([currentUid: 1]) { (_, _) in
             // update user followers
-            K.Firebase.userFollowing.child(uid).updateChildValues([currentUid: 1], withCompletionBlock: complition)
+            K.Firebase.userFollowing.child(currentUid).updateChildValues([uid: 1], withCompletionBlock: complition)
         }
     }
     
@@ -51,15 +52,15 @@ final class UserService {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         
         // Unfollow user, Following -user
-        K.Firebase.userFollowers.child(currentUid).child(uid).removeValue { (_, _) in
+        K.Firebase.userFollowers.child(uid).child(currentUid).removeValue { (_, _) in
             // // Unfollow user, Followers -user
-            K.Firebase.userFollowing.child(uid).child(currentUid).removeValue(completionBlock: response)
+            K.Firebase.userFollowing.child(currentUid).child(uid).removeValue(completionBlock: response)
         }
     }
     
     func checkUserIsFollowed(uid: String, complition: @escaping (Bool) -> Void) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
-        K.Firebase.userFollowers.child(currentUid).child(uid).observeSingleEvent(of: .value) { snapshot in
+        K.Firebase.userFollowers.child(uid).child(currentUid).observeSingleEvent(of: .value) { snapshot in
             complition(snapshot.exists())
         }
     }

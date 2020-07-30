@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 struct User {
     let fullName: String

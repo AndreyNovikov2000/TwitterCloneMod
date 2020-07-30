@@ -12,11 +12,12 @@ import FirebaseDatabase
 struct Tweet {
     let caption: String
     let uid: String
-    let likes: Int
+    var likes: Int
     let retweetCount: Int
     let timetamp: Int
     let tweetId: String
     var user: User
+    var didLike = false
     
     var date: Date {
         return Date(timeIntervalSince1970: TimeInterval(timetamp))

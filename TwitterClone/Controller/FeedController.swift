@@ -20,7 +20,11 @@ class FeedViewController: UICollectionViewController {
     
     // MARK: - Private properties
     
-    private var tweets = [Tweet]()
+    private var tweets = [Tweet]() {
+        didSet {
+            collectionView.reloadData()
+        }
+    }
     
     // MARK: - Live cycle
     
@@ -37,10 +41,21 @@ class FeedViewController: UICollectionViewController {
     
     
     // MARK: - API
-    func fetchTweets() {
+    private func fetchTweets() {
         TweetService.shared.fetchTweets { tweets in
             self.tweets = tweets
-            self.collectionView.reloadData()
+            self.checkUserIsLikedTheTweets()
+        }
+    }
+    
+    private func checkUserIsLikedTheTweets() {
+        tweets.forEach { tweet in
+            if let index = tweets.firstIndex(where: { $0.tweetId == tweet.tweetId }) {
+                TweetService.shared.checkIfUserLikedTweet(tweet) { (didLike) in
+                    guard didLike == true else { return }
+                    self.tweets[index].didLike = true
+                }
+            }
         }
     }
     
@@ -116,7 +131,15 @@ extension FeedViewController: TweetCellDelegate {
         navController.modalPresentationStyle = .fullScreen
         present(navController, animated: true, completion: nil)
     }
-
+    
+    func tweetCell(_ tweetCell: TweetCell, handleLikeButtonTapped likeButton: UIButton) {
+        guard let tweet = tweetCell.tweet else { return }
+        TweetService.shared.likeTweet(tweet: tweet) { (_, _) in
+            tweetCell.tweet?.didLike.toggle()
+            let likes = tweet.didLike ? tweet.likes - 1 : tweet.likes + 1
+            tweetCell.tweet?.likes = likes
+        }
+    }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout
